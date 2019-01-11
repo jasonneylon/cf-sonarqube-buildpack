@@ -3,6 +3,9 @@
 echo "-----> Making java available"
 export PATH=$PATH:/home/vcap/app/.java/bin
 
+echo "-----> Setting database environment variable"
+SONARQUBE_POSTGRES_URL=$(echo $VCAP_SERVICES | jq -r '.["google-cloudsql-postgres"][0].credentials.uri')
+
 echo "-----> Setting sonar.properties"
 echo "       sonar.web.port=${PORT}"
 echo "\n ------- The following properties were automatically created by the buildpack -----\n" >> ./sonar.properties
