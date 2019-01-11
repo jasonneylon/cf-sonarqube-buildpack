@@ -8,8 +8,10 @@ SONARQUBE_POSTGRES_URL=$(echo $VCAP_SERVICES | jq -r '.["google-cloudsql-postgre
 
 echo "-----> Setting sonar.properties"
 echo "       sonar.web.port=${PORT}"
+echo "       sonar.jdbc.url=${SONARQUBE_POSTGRES_URL%?????????????}..."
 echo "\n ------- The following properties were automatically created by the buildpack -----\n" >> ./sonar.properties
 echo "sonar.web.port=${PORT}\n" >> ./sonar.properties
+echo "sonar.jdbc.url=${SONARQUBE_POSTGRES_URL}\n" >> ./sonar.properties
 
 # Replace all environment variables with syntax ${MY_ENV_VAR} with the value
 # thanks to https://stackoverflow.com/questions/5274343/replacing-environment-variables-in-a-properties-file
