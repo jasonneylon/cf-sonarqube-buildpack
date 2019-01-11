@@ -4,14 +4,22 @@ echo "-----> Making java available"
 export PATH=$PATH:/home/vcap/app/.java/bin
 
 echo "-----> Setting database environment variable"
-SONARQUBE_POSTGRES_URL=$(echo $VCAP_SERVICES | jq -r '.["google-cloudsql-postgres"][0].credentials.uri')
-
+POSTGRES_CREDENTIALS=$(echo $VCAP_SERVICES | jq --raw-output '.["google-cloudsql-postgres"][0].credentials | {database_name, Username, Password, host}')
+POSTGRES_DATABASE_NAME=$(echo $POSTGRES_CREDENTIALS | jq --raw-output '.database_name')
+POSTGRES_HOST=$(echo $POSTGRES_CREDENTIALS | jq --raw-output '.host')
+POSTGRES_PASSWORD=$(echo $POSTGRES_CREDENTIALS | jq --raw-output '.Password')
+POSTGRES_USERNAME=$(echo $POSTGRES_CREDENTIALS | jq --raw-output '.Username')
+SONARQUBE_POSTGRES_URL=jdbc:postgresql://$POSTGRES_HOST/$POSTGRES_DATABASE_NAME
 echo "-----> Setting sonar.properties"
 echo "       sonar.web.port=${PORT}"
-echo "       sonar.jdbc.url=${SONARQUBE_POSTGRES_URL%?????????????}..."
+echo "       sonar.jdbc.url=${SONARQUBE_POSTGRES_URL}"
+echo "       sonar.jdbc.username=${POSTGRES_USERNAME}"
+echo "       sonar.jdbc.password=...."
 echo "\n ------- The following properties were automatically created by the buildpack -----\n" >> ./sonar.properties
 echo "sonar.web.port=${PORT}\n" >> ./sonar.properties
-echo "sonar.jdbc.url=jdbc:${SONARQUBE_POSTGRES_URL}\n" >> ./sonar.properties
+echo "sonar.jdbc.url=${SONARQUBE_POSTGRES_URL}\n" >> ./sonar.properties
+echo "sonar.jdbc.username=${POSTGRES_USERNAME}\n" >> ./sonar.properties
+echo "sonar.jdbc.password=${POSTGRES_PASSWORD}\n" >> ./sonar.properties
 
 # Replace all environment variables with syntax ${MY_ENV_VAR} with the value
 # thanks to https://stackoverflow.com/questions/5274343/replacing-environment-variables-in-a-properties-file
